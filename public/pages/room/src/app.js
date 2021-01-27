@@ -18,11 +18,24 @@ const onload = () => {
     const socketBuilder = new SocketBuilder({ socketUrl });
     const view = new View();
     const media = new Media();
+
+    const peerConfig = Object.values({
+        id: undefined,
+        config: {
+            port: 9000,
+            host: 'localhost',
+            path: '/',
+        },
+    });
+
+    const peerBuilder = new PeerBuilder({ peerConfig });
+
     const deps = {
         view,
         media,
         room,
         socketBuilder,
+        peerBuilder
     };
 
     Business.initialize(deps);
