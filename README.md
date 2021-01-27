@@ -1,4 +1,5 @@
 # Projeto base da JS Expert Week 2.0
+### forked from https://github.com/ErickWendel/jsexpert02-skeleton-ew
 
 - Acesse o [home](./pages/home/index.html) para acessar a home page
 - Acesse o [room](./page/room/index.html) uma room específica
