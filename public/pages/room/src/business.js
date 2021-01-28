@@ -12,6 +12,7 @@ class Business {
         this.currentPeer = {};
 
         this.peers = new Map();
+        this.usersRecordings = new Map();
     }
 
     static initialize(deps) {
@@ -20,6 +21,8 @@ class Business {
     }
 
     async _init() {
+        this.view.configureRecordButton(this.onRecordPressed.bind(this));
+
         this.socket = this.socketBuilder
             .setOnUserConnected(this.onUserConnected())
             .setOnUserDisconnected(this.onUserDisconnected())
@@ -33,12 +36,20 @@ class Business {
             .setOnConnectionOpened(this.onPeerConnectionOpened())
             .setOnCallReceived(this.onPeerCallReceived())
             .setOnPeerStreamReceived(this.onPeerStreamReceived())
+            .setOnCallError(this.onPeerCallError())
+            .setOnCallClose(this.onPeerCallClose())
             .build();
 
-        this.addVideoStream('test01');
+        this.addVideoStream(this.currentPeer.id);
     }
 
     addVideoStream(userId, stream = this.currentStream) {
+        const recorderInstance = new Recorder(userId, stream);
+        this.usersRecordings.set(recorderInstance.fileName, recorderInstance);
+        if (this.recordingEnabled) {
+            recorderInstance.startRecording();
+        }
+
         const isCurrentUserId = false;
         this.view.renderVideo({
             userId,
@@ -47,46 +58,54 @@ class Business {
         });
     }
 
-    onUserConnected = function () {
+    onUserConnected() {
         return (userId) => {
             console.log('user connected!', userId);
             this.currentPeer.call(userId, this.currentStream);
         };
-    };
+    }
 
-    onUserDisconnected = function () {
+    onUserDisconnected() {
         return (userId) => {
             console.log('user disconnected!', userId);
-        };
-    };
+            if (this.peers.has(userId)) {
+                this.peers.get(userId).call.close();
+                this.peers.delete(userId);
+            }
 
-    onPeerError = function () {
+            this.view.setParticipants(this.peers.size);
+            this.view.removeVideoElement(userId);
+        };
+    }
+
+    onPeerError() {
         return (error) => {
             console.log('error on peer', error);
         };
-    };
+    }
 
-    onPeerConnectionOpened = function () {
+    onPeerConnectionOpened() {
         return (peer) => {
             const id = peer.id;
             console.log('peer', peer);
             this.socket.emit('join-room', this.room, id);
             console.log('connection opened');
         };
-    };
+    }
 
-    onPeerCallReceived = function () {
+    onPeerCallReceived() {
         return (call) => {
             console.log('callReceived', call.peer);
             call.answer(this.currentStream);
         };
-    };
+    }
 
+    //fix problem from Peer lib when id called twice (one for audio and another for video)
     _callerIdHasAlreadyBeenReceived(callerId) {
         return !!this.peers.has(callerId);
     }
 
-    onPeerStreamReceived = function () {
+    onPeerStreamReceived() {
         return (call, stream) => {
             const callerId = call.peer;
             if (this._callerIdHasAlreadyBeenReceived(callerId)) return;
@@ -96,5 +115,46 @@ class Business {
             this.peers.set(callerId, { call });
             this.view.setParticipants(this.peers.size);
         };
-    };
+    }
+
+    onPeerCallError() {
+        return (call, error) => {
+            console.log('an call error ocurred', error);
+            this.view.removeVideoElement(call.peer);
+        };
+    }
+
+    onPeerCallClose() {
+        return (call) => {
+            console.log('call closed', call.peer);
+        };
+    }
+
+    onRecordPressed(recordingEnabled) {
+        this.recordingEnabled = recordingEnabled;
+        console.log('pressed', recordingEnabled);
+        for (const [key, value] of this.usersRecordings) {
+            if (this.recordingEnabled) {
+                value.startRecording();
+                continue;
+            }
+            this.stopRecording(key);
+        }
+    }
+
+    // if users reconnect a couple of times
+    // need to stop all recorders from this user
+    async stopRecording(userId) {
+        const usersRecordings = this.usersRecordings;
+        for (const [key, value] of usersRecordings) {
+            const isContextUser = key.includes(userId);
+            if (!isContextUser) continue;
+
+            const rec = value;
+            const isRecordingActive = rec.recordingActive;
+            if (!isRecordingActive) continue;
+
+            await rec.stopRecording();
+        }
+    }
 }
