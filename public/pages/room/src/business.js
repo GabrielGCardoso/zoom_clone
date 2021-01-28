@@ -89,7 +89,7 @@ class Business {
     onPeerStreamReceived = function () {
         return (call, stream) => {
             const callerId = call.peer;
-            if (_callerIdHasAlreadyBeenReceived(callerId)) return;
+            if (this._callerIdHasAlreadyBeenReceived(callerId)) return;
             this.addVideoStream(callerId, stream);
 
             //Maps is more semantic then objects and easier to manipulate
