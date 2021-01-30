@@ -1,6 +1,7 @@
 ## Example
 
 ![Example](./example.png)
+![Example](./example2.gif)
 
 ## Home Page
 
