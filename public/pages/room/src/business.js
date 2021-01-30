@@ -21,6 +21,7 @@ class Business {
     }
 
     async _init() {
+        this.view.configureLeaveButton(this.onLeavePressed.bind(this));
         this.view.configureRecordButton(this.onRecordPressed.bind(this));
 
         this.socket = this.socketBuilder
@@ -50,7 +51,7 @@ class Business {
             recorderInstance.startRecording();
         }
 
-        const isCurrentUserId = false;
+        const isCurrentUserId = userId === this.currentPeer.id;
         this.view.renderVideo({
             userId,
             stream,
@@ -74,6 +75,7 @@ class Business {
             }
 
             this.view.setParticipants(this.peers.size);
+            this.stopRecording(userId);
             this.view.removeVideoElement(userId);
         };
     }
@@ -142,6 +144,11 @@ class Business {
         }
     }
 
+    onLeavePressed() {
+        console.log('pressed leave');
+        this.usersRecordings.forEach((value, key) => value.download());
+    }
+
     // if users reconnect a couple of times
     // need to stop all recorders from this user
     async stopRecording(userId) {
@@ -155,6 +162,15 @@ class Business {
             if (!isRecordingActive) continue;
 
             await rec.stopRecording();
+            this.playRecordings(key);
         }
+    }
+
+    playRecordings(userId) {
+        const user = this.usersRecordings.get(userId);
+        const videosURLs = user.getAllVideosURLs();
+        videosURLs.map((url) => {
+            this.view.renderVideo({ url, userId });
+        });
     }
 }
