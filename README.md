@@ -1,3 +1,7 @@
+## Example
+
+![Example](./example.png)
+
 ## Home Page
 
 ![home page](./public/prints/home.png)
