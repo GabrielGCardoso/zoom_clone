@@ -6,9 +6,9 @@
 
 ![room](./public/prints/room.png)
 
-### Credits
+# Credits
 ### Special thanks to [Erick Wendel](https://github.com/ErickWendel) thats produced this special, unique and awsome content to programers with experience
-# Base project at JS Expert Week 2.0
+### Base project at JS Expert Week 2.0
 ### forked from https://github.com/ErickWendel/jsexpert02-skeleton-ew
 
 - Access the [home](./public/pages/home/index.html) to access the home page
