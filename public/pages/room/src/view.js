@@ -1,6 +1,7 @@
 class View {
     constructor() {
         this.recorderBtn = document.getElementById('record');
+        this.leaveBtn = document.getElementById('leave');
     }
 
     createVideoElement({ muted = true, src, srcObject }) {
@@ -27,10 +28,10 @@ class View {
         stream = null,
         url = null,
         isCurrentUserId = false,
-        muted = true,
+        // muted = true,
     }) {
         const video = this.createVideoElement({
-            muted,
+            muted: isCurrentUserId,
             src: url,
             srcObject: stream,
         });
@@ -76,8 +77,20 @@ class View {
         };
     }
 
+    onLeaveClick(command) {
+        return async () => {
+            command();
+            await Utils.sleep(1000);
+            window.location = '/pages/home';
+        };
+    }
+
     configureRecordButton(command) {
         // const recordBtn = document.getElementById('record');
         this.recorderBtn.addEventListener('click', this.onRecordClick(command));
+    }
+
+    configureLeaveButton(command) {
+        this.leaveBtn.addEventListener('click', this.onLeaveClick(command));
     }
 }
