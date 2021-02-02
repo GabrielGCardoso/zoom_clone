@@ -1,7 +1,7 @@
 <p  align="center">
 <img  alt="GitHub language count"  src="https://img.shields.io/github/languages/count/GabrielGCardoso/zoom_clone">
 <img  alt="Repository size"  src="https://img.shields.io/github/repo-size/GabrielGCardoso/zoom_clone">
-<a  href="https://github.com/GabrielGCardoso/zoom_clone/commits/master">
+<a  href="https://github.com/GabrielGCardoso/zoom_clone/commits/main">
 <img  alt="GitHub last commit"  src="https://img.shields.io/github/last-commit/GabrielGCardoso/zoom_clone">
 </a>
 <a  href="https://github.com/GabrielGCardoso/zoom_clone/stargazers">
